@@ -1,4 +1,13 @@
-<!-- Here is the ending page, called at the end of the checkout, just before the user is redirected to the payment plateform -->
+<?php
+/**
+ * @package	HikaShop for Joomla!
+ * @version	2.5.0
+ * @author	gbc
+ * @copyright	(C) 2010-2015 HIKARI SOFTWARE. All rights reserved.
+ * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ */
+defined('_JEXEC') or die('Restricted access');
+?>
 <div class="hikashop_mpesa_end" id="hikashop_mpesa_end">
 	<?php 
 		$app = JFactory::getApplication();
