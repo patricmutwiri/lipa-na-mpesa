@@ -1,9 +1,9 @@
 <?php
 /**
- * @package	HikaShop for Joomla!
- * @version	1
+ * @package	Lipa na Mpesa for HikaShop for Joomla!
+ * @version	1.0
  * @author	patrick
- * @copyright	(C) 2010-2015 patrick SOFTWARE. All rights reserved.
+ * @copyright	(C) 2010-2015 HIKARI SOFTWARE. All rights reserved.
  * @license	GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 defined('_JEXEC') or die('Restricted access');
@@ -17,12 +17,12 @@ defined('_JEXEC') or die('Restricted access');
 	<span id="hikashop_mpesa_end_message" class="hikashop_mpesa_end_message">
 		<?php echo JText::sprintf('PLEASE_WAIT_BEFORE_REDIRECTION_TO_X',$this->payment_name).'<br/>'. JText::_('CLICK_ON_BUTTON_IF_NOT_REDIRECTED');?> <!-- Waiting message -->
 	</span>
-
 	<!-- To send all requiered information, a form is used. Hidden input are setted with all variables, and the form is auto submit with a POST method to the payment plateform URL -->
 	<?php 
 		//$uri = JFactory::getURI();
 		//$absolute_url = $uri->toString();
-		$absolute_url = JRoute::_($this->payment_params->payment_url);
+		//$absolute_url = JRoute::_($this->payment_params->payment_url);
+	$absolute_url = 'mpesa_save.php';
 	?>
 	<form id="hikashop_mpesa_form" name="hikashop_mpesa_form" action="<?php echo $absolute_url ?>" method="post">
 		<div id="hikashop_mpesa_end_image" class="hikashop_mpesa_end_image">
@@ -49,34 +49,15 @@ defined('_JEXEC') or die('Restricted access');
 		<script type="text/javascript">
 		jQuery(function(){
 			jQuery('#hikashop_mpesa_button').on('click',function(){
-				var url = jQuery('#hikashop_mpesa_form').attr('action');
-				var data = jQuery('#hikashop_mpesa_form').serialize();
-				jQuery.post(url,{ data:data },function(data){
-					var dataReturned = jQuery(data).find('div#hikashop_mpesa_end');
-					jQuery('div#hikashop_mpesa_end').html(dataReturned);
+				var url = 'mpesa_save.php';
+				jQuery.post(url,{ data:jQuery('#hikashop_mpesa_form').serialize()},function(datax){
+					jQuery('div#hikashop_mpesa_end').html(datax);
+					return false;
 				});
 				return false;
 			});
 		});
 		</script>
 	</form>
-	<?php } else {
-		//save mpesa code
-		$vars = $this->vars;
-		$user  = JFactory::getUser();
-		$db    = JFactory::getDBO();
-		$mpesa = new stdClass();
-		$mpesa->id = NULL;
-		$mpesa->t_id = $mpesa_code;
-		$mpesa->order_id = $vars['ORDERID'];
-		$mpesa->t_date   = date('d-m-Y',time());
-		$mpesa->name = $user->name;
-		$mpesa->email = $user->email;
-		if($db->insertObject('#__mpesa',$mpesa,'id')) {
-			echo ' Payment Successfull';
-		} else {
-			echo  ' Error ';
-		}
-	} 	
-?>
+	<?php } ?>
 </div>
