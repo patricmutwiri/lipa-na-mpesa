@@ -82,6 +82,7 @@ if(!(!$connHost) && !(!$connDb)){
 		$mpesatbl->status = 'created';
 		$body .= '<p>Order Amount Paid less than the actual price of KES. '.$fullprice.'.<br/> Please Repay with the full Amount. </p>';
 	}
+	$data_base->updateObject('#__mpesa',$mpesatbl,'t_id');
 	//send mail later
 	mail($to, $subject, $body,$headers);
 	echo ' OK | Thank you for your payment';
