@@ -16,15 +16,16 @@ $app 	=	JFactory::getApplication();
 		$db    = JFactory::getDBO();
 		$mpesa = new stdClass();
 		$mpesa->id = NULL;
-		$mpesa->t_id = $vars->get('mpesa_code');
+		$mpesa->t_id = strtoupper($vars->get('mpesa_code'));
 		$mpesa->order_id = $vars->get('ORDERID');
 		$mpesa->t_date   = date('d-m-Y',time());
 		$mpesa->name = $user->name;
 		$mpesa->email = $user->email;
+		$mpesa->time = time();
 		if($db->insertObject('#__mpesa',$mpesa,'id')) {
 			$order = stdClass();
 			$order->order_id   = $vars->get('ORDERID');
-			$order->mpesa_code = $vars->get('mpesa_code');
+			$order->mpesa_code = strtoupper($vars->get('mpesa_code'));
 			if( $db->updateObject('#__hikashop_order',$order,'order_id') ){
 				$app->redirect('index.php','Payment saved Successfully. ');
 				echo  ' Payment saving Successfull ';
@@ -35,6 +36,6 @@ $app 	=	JFactory::getApplication();
 			echo  ' Error ';
 		}
 	} else{
-		$app->redirect('index.php');
+		$app->redirect('index.php',' check parameters !');
 	}
 ?>
