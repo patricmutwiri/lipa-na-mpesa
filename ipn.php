@@ -32,6 +32,8 @@ $user 		= $config->user;
 $prefix 	= $config->dbprefix;
 $pass 		= $config->password;
 $db 		= $config->db;
+$mailfrom   = $config->mailfrom;
+$mailfromname = $config->fromname;
 $sent 		= 0;
 $id 		= $_REQUEST['id']; //id
 $origin 	= $_GET['orig'];//origin of the transaction
@@ -48,15 +50,16 @@ $mpesa_sender 	= $_GET['mpesa_sender'];//mpesa sender
 $ip 		= isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';//ip
 $connHost 	= mysql_connect($host,$user,$pass) or die(mysql_error());//online
 $connDb 	= mysql_select_db($db) or die(mysql_error());//online
-$email 		= 'pmutwiri@gbc.co.ke';
-$to    		= 'pmutwiri@gbc.co.ke,test@gbckenya.com';
-$subject 	= 'FALCON EAST AFRICA - IPN Transaction ';
-$from 		= 'FALCON EAST AFRICA SAFARICOM IPN <info@falconeastafrica.co.ke>';
+$email 		= 'patwiri@gmail.com';
+$to    		= $email;
+$sitename   = strtoupper($config->sitename);
+$subject 	= $sitename.' - IPN Transaction ';
+$from 		= $sitename.' SAFARICOM IPN <'.$mailfrom.'>';
 $headers  	= 'MIME-Version: 1.0' . "\r\n";
 $headers 	.= 'Content-type: text/html; charset=us-ascii' . "\r\n";
 $headers 	.= "From: $from \r\n";
 $headers 	.= "Reply-To: $email \r\n";
-$headers 	.= 'Bcc: clients@gbc.co.ke' . "\r\n";
+$headers 	.= 'Bcc: '.$email.'' . "\r\n";
 if(!(!$connHost) && !(!$connDb)){
 	//dump data in database
 	$dumpTableData = mysql_query("INSERT INTO ".$prefix."mpesa_ipn (idTrx,origin,destination,timeStamp,text,mpesaCode,mpesaAccount,mpesaMSISDN,mpesaTrxDate,mpesaTrxTime,mpesaAmt,mpesaSender,ip,sent) VALUES('$id','$origin','$dest','$tstamp','$text','$mpesa_code','$mpesa_acc','$mpesa_msisdn','$mpesa_trx_date','$mpesa_trx_time','$mpesa_amt','$mpesa_sender','$ip','$sent')") or die(mysql_error());
