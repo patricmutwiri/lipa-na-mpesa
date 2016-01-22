@@ -1,7 +1,30 @@
-
-<?PHP
-//to be placed preferably in the root. 
-
+<?php 
+define( '_JEXEC', 1 ); 
+define( '_VALID_MOS', 1 ); 
+define( 'JPATH_BASE', realpath(dirname(__FILE__))); 
+define( 'DS', DIRECTORY_SEPARATOR ); 
+require_once ( JPATH_BASE .DS.'includes'.DS.'defines.php' ); 
+require_once ( JPATH_BASE .DS.'includes'.DS.'framework.php' ); 
+$mainframe = JFactory::getApplication('site'); 
+$mainframe->initialise(); 
+$app 	=	JFactory::getApplication();
+$input = JFactory::getApplication()->input;
+$data_base = JFactory::getDBO();
+//add joomla framework support
+if(!include_once(rtrim(JPATH_ADMINISTRATOR,DS).DS.'components'.DS.'com_hikashop'.DS.'helpers'.DS.'helper.php')){
+	return 'This module can not work without the Hikashop Component';
+}
+//hikashop helper loading
+$hikashop = new hikashop();
+//get this order's id
+$qu = 'select * from #__hikashop_order where mpesa_code = '.$input->get('mpesa_code').'';
+$db->setQuery($qu);
+$result = $db->loadObject();
+$orderid = $result->order_id;
+$fullprice = $result->order_full_price;
+$order_details = $hikashop->getOrder($orderid);
+?>
+<?php
 require_once('configuration.php');
 $config 	= new JConfig();
 $host 		= $config->host;
@@ -22,7 +45,6 @@ $mpesa_trx_date = $_GET['mpesa_trx_date'];//mpesa transaction date
 $mpesa_trx_time = $_GET['mpesa_trx_time'];//mpesa transaction time
 $mpesa_amt 		= $_GET['mpesa_amt'];//mpesa amount
 $mpesa_sender 	= $_GET['mpesa_sender'];//mpesa sender
-
 $ip 		= isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';//ip
 $connHost 	= mysql_connect($host,$user,$pass) or die(mysql_error());//online
 $connDb 	= mysql_select_db($db) or die(mysql_error());//online
@@ -48,8 +70,21 @@ if(!(!$connHost) && !(!$connDb)){
 		<tr><td>Mpesa Transaction Date:' .$mpesa_trx_date. '</td><td>Mpesa Transaction Time:' .$mpesa_trx_time. '</td></tr>
 		<tr><td>Mpesa Amount:' .$mpesa_amt. '</td><td>Mpesa Sender:' .$mpesa_sender. '</td></tr>
 	</table>';									
+	// mark mpesa table status paid/done
+	$mpesatbl  = new stdClass();
+	$mpesatbl->t_id = $input->get('mpesa_code');
+	if($mpesa_amt >= $fullprice){
+		// mark order paid
+		$hikashop->modifyOrder($orderid,'confirmed',true,true,null); //order confirmed if price ok
+		$mpesatbl->status = 'paid';
+		$body .= '<p> Order Amount Paid the actual price of KES. '.$fullprice.'</p>';
+	} else{
+		$mpesatbl->status = 'created';
+		$body .= '<p>Order Amount Paid less than the actual price of KES. '.$fullprice.'.<br/> Please Repay with the full Amount. </p>';
+	}
+	//send mail later
 	mail($to, $subject, $body,$headers);
-	echo 'OK | Thank you for your payment';
+	echo ' OK | Thank you for your payment';
 } else {
 	$body = 
 	'<table border="0">
@@ -58,5 +93,4 @@ if(!(!$connHost) && !(!$connDb)){
 	$subject .= ' - Failure';
 	mail($to, $subject, $body,$headers);
 	echo ' OK | Mpesa Transaction Failed ';
-}
-?>
+} ?>
